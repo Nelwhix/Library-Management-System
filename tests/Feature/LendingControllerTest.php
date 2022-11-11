@@ -59,17 +59,53 @@ test("users with wrong plan can't borrow", function () {
 });
 
 test('user can borrow book', function () {
-    $access_level = AccessLevel::where('name', 'Youth')->first();
+    $youthAccess = AccessLevel::where('name', 'Youth')->first();
+    $freePlan = Plan::where('name', 'Free')->first();
 
     $user = User::factory()->create([
-       'access_level_id' => $access_level->id,
+       'access_level_id' => $youthAccess->id,
+        'plan_id' => $freePlan->id,
    ]);
 
+    $book = Book::factory()->create();
+    $book->plans()->attach([
+        'book_id' => $book->id,
+        'plan_id' => $freePlan->id
+    ]);
+    $book->accessLevels()->attach([
+        'book_id' => $book->id,
+        'access_level_id' => $youthAccess->id
+    ]);
 
-   $response = $this->actingAs($user, 'web')->post('/borrow-book', [
-       "title" => 'Pariatur qui alias non neque.',
-       'edition' => '2nd Edition',
-   ]);
+   $response = $this->actingAs($user, 'web')->post('/borrow-book', $book->toArray());
 
    $response->assertStatus(201);
+});
+
+test('user cannot borrow unavailable book', function () {
+    $youthAccess = AccessLevel::where('name', 'Youth')->first();
+    $freePlan = Plan::where('name', 'Free')->first();
+
+    $user = User::factory()->create([
+        'access_level_id' => $youthAccess->id,
+        'plan_id' => $freePlan->id,
+    ]);
+
+//    $book = Book::factory()->create();
+//    $book->plans()->attach([
+//        'book_id' => $book->id,
+//        'plan_id' => $freePlan->id
+//    ]);
+//    $book->accessLevels()->attach([
+//        'book_id' => $book->id,
+//        'access_level_id' => $youthAccess->id
+//    ]);
+
+    // creating an unavailable book
+    $book = Book::where('id', '01ghmenmhhxrjh84j0a44mzfaf')->first();
+
+
+    $response = $this->actingAs($user, 'web')->post('/borrow-book', $book->toArray());
+
+    $response->assertStatus(201);
 })->skip();

@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             AccessLevelSeeder::class,
             PlanSeeder::class,
             BookSeeder::class,
-            StatusSeeder::class,
         ]);
     }
 }

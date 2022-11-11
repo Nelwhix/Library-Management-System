@@ -10,7 +10,16 @@ class Status extends Model
 {
     use HasFactory, HasUlids;
 
-    public function statustable() {
-        return $this->morphTo();
+    protected $table = 'status';
+
+    protected $fillable = [
+        'name',
+        'description',
+        'statusable_id',
+        'statusable_type'
+    ];
+
+    public function statusable() {
+        return $this->morphTo(__FUNCTION__, 'statusable_type', 'statusable_id');
     }
 }

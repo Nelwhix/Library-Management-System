@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\Lending;
+use App\Models\Status;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -22,10 +23,10 @@ class LendingController extends Controller
             return response("Book does not exist on our database", 404);
         }
 
-        // Check if book is available
+        // TODO Check if book is available
 
 
-        $book_id = $book->id;
+
         $user_id = auth()->user()->id;
         $user = User::where('id', $user_id)->first();
 
@@ -45,12 +46,21 @@ class LendingController extends Controller
 
         // Every book must be returned in a week
         Lending::create([
-            'book_id' => $book_id,
+            'book_id' => $book->id,
             'user_id' => $user_id,
             'date_borrowed' => now(),
-            'date_due' =>
+            'date_due' => now()->addDays(7)
         ]);
 
-        return response("Book borrowed successfully,")
+        Status::create([
+            'name' => 'borrowed',
+            'description' => 'borrowed entity(book)',
+            'statusable_id' => $book->id,
+            'statusable_type' => "App\Models\Book"
+        ]);
+
+        return response("Book borrowed successfully, Date due for return is" . " " . now()->addDays(7),
+            201);
     }
+
 }

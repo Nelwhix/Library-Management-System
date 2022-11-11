@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('description');
             $table->ulid('statusable_id');
-            $table->ulid('statusable_type');
+            $table->string('statusable_type');
             $table->timestamps();
         });
     }

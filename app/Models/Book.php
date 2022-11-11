@@ -29,4 +29,5 @@ class Book extends Model
     public function status() {
         return $this->morphOne(Status::class, 'statusable');
     }
+
 }

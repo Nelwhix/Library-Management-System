@@ -10,6 +10,13 @@ class Lending extends Model
 {
     use HasFactory, HasUlids;
 
+    protected $fillable = [
+      'book_id',
+      'user_id',
+      'date_borrowed',
+        'date_due',
+        'date_returned'
+    ];
 
     public function users() {
         return $this->belongsTo(User::class);
