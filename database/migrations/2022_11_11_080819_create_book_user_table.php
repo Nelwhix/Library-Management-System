@@ -13,12 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('access_levels', function (Blueprint $table) {
+        Schema::create('book_user', function (Blueprint $table) {
             $table->ulid('id');
-            $table->string('name');
-            $table->string('age');
-            $table->unsignedSmallInteger('borrowing_point');
             $table->foreignUlid('book_id');
+            $table->foreignUlid('user_id');
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('access_levels');
+        Schema::dropIfExists('book_user');
     }
 };
