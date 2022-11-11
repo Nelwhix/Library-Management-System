@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('accesslevel_book', function (Blueprint $table) {
+        Schema::create('access_level_book', function (Blueprint $table) {
             $table->ulid('id');
             $table->foreignUlid('book_id');
             $table->foreignUlid('access_level_id');

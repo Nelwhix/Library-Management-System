@@ -1,18 +1,10 @@
 <?php
 
+use App\Models\AccessLevel;
+use App\Models\Plan;
 use App\Models\User;
-use Database\Seeders\PermissionSeeder;
-use Illuminate\Database\Events\MigrationsEnded;
-use Illuminate\Support\Facades\Event;
-use Spatie\Permission\PermissionRegistrar;
 
-beforeEach(function () {
-    $this->app->make(PermissionRegistrar::class)->registerPermissions();
 
-    Event::listen(MigrationsEnded::class, function () {
-        $this->artisan('db:seed', ['--class' => PermissionSeeder::class]);
-    });
-});
 
 test('app starts', function () {
     $response = $this->get('/');
@@ -30,8 +22,12 @@ test('user can register and get token', function () {
 });
 
 test('user can edit profile', function () {
+    $freePlan = Plan::where('name', 'Free')->first();
+    $child = AccessLevel::where('name', 'Children')->first();
+
     $user = User::factory()->create([
-        'access_level_id' => '01GHKERF8KBC04B6R8F94RC3D0',
+        'access_level_id' => $child->id,
+        'plan_id' => $freePlan->id,
     ]);
 
    $response = $this->actingAs($user, 'web')->put('/profile/edit', [

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AccessLevel;
+use App\Models\Plan;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -20,9 +21,9 @@ class UserController extends Controller
             'password' => 'required|string|confirmed'
         ]);
 
+        // Assign user an access level and free plan
         $access_level = $this->accessQuery($fields['age']);
-
-        $access_level_id = $access_level->id;
+        $plan = Plan::where('name', 'Free')->first();
 
         $user = User::create([
             'firstName' => $fields['firstName'],
@@ -32,8 +33,9 @@ class UserController extends Controller
             'age' => $fields['age'],
             'address' => $fields['address'],
             'password' => bcrypt($fields['password']),
-            'access_level_id' => $access_level_id,
-            'points' => 10,
+            'access_level_id' => $access_level->id,
+            'plan_id' => $plan->id,
+            'points' => 0,
         ])->assignRole('reader');
 
         $token = $user->createToken('appToken')->plainTextToken;

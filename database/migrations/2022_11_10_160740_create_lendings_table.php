@@ -17,9 +17,9 @@ return new class extends Migration
             $table->ulid('id');
             $table->foreignUlid('book_id');
             $table->foreignUlid('user_id');
-            $table->dateTimeTz('date borrowed');
-            $table->dateTimeTz('date due');
-            $table->dateTimeTz('date returned')->nullable();
+            $table->dateTimeTz('date_borrowed');
+            $table->dateTimeTz('date_due');
+            $table->dateTimeTz('date_returned')->nullable();
             $table->unsignedSmallInteger('points')->nullable();
             $table->timestamps();
         });

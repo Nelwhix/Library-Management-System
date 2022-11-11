@@ -28,6 +28,7 @@ class User extends Authenticatable
         'address',
         'points',
         'access_level_id',
+        'plan_id'
     ];
 
     /**
@@ -64,5 +65,9 @@ class User extends Authenticatable
 
     public function status() {
         return $this->morphOne(Status::class, 'statusable');
+    }
+
+    public function plans() {
+        return $this->belongsTo(Plan::class);
     }
 }

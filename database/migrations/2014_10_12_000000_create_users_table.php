@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->foreignUlid('access_level_id');
+            $table->foreignUlid('plan_id');
             $table->timestamps();
         });
     }

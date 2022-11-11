@@ -15,11 +15,11 @@ class Book extends Model
     }
 
     public function plans() {
-        return $this->belongsToMany(Plan::class);
+        return $this->belongsToMany(Plan::class)->using(BookPlan::class);
     }
 
     public function accesslevels() {
-        return $this->belongsToMany(AccessLevel::class);
+        return $this->belongsToMany(AccessLevel::class)->using(AccessLevelBook::class);
     }
 
     public function users() {
