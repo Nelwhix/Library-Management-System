@@ -20,18 +20,8 @@ class UserController extends Controller
             'password' => 'required|string|confirmed'
         ]);
 
-        // PHP8 syntax
-        $access_level = match(true) {
-            $fields['age'] >= 7 && $fields['age'] < 15 => AccessLevel::where('age', "7 to 15")->first(),
+        $access_level = $this->accessQuery($fields['age']);
 
-            $fields['age'] >= 15 && $fields['age'] <= 24 => AccessLevel::where('age', "15 to 24")->first(),
-
-            $fields['age'] >= 25 && $fields['age'] <= 49  => AccessLevel::where('age', "25 to 49")->first(),
-
-            $fields['age'] >= 50 => AccessLevel::where('age', "50 and above")->first(),
-        };
-
-        dd($access_level);
         $access_level_id = $access_level->id;
 
         $user = User::create([
@@ -53,5 +43,42 @@ class UserController extends Controller
             'token' => $token
         ], 201);
 
+    }
+
+    public function update(Request $request) {
+        $fields = $request->validate([
+            'firstName' => 'string',
+            'lastName' => 'string',
+            'userName' => 'string',
+            'age' => 'integer',
+            'address' => 'string',
+        ]);
+
+        if ($request->has('age')) {
+            $access_level = $this->accessQuery($fields['age']);
+
+            $fields['access_level_id'] = $access_level->id;;
+        }
+
+        $user = User::where('id', auth()->user()->id)->first();
+
+        $user->update($fields);
+
+        return response([
+            'message' => 'Profile edited successfully',
+            'user' => $user
+        ], 200);
+    }
+
+    private function accessQuery(int $age) {
+        return match(true) {
+            $age >= 7 && $age < 15 => AccessLevel::where('age', "7 to 15")->first(),
+
+            $age >= 15 && $age <= 24 => AccessLevel::where('age', "15 to 24")->first(),
+
+            $age >= 25 && $age <= 49  => AccessLevel::where('age', "25 to 49")->first(),
+
+            $age >= 50 => AccessLevel::where('age', "50 and above")->first(),
+        };
     }
 }

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->dateTimeTz('date borrowed');
             $table->dateTimeTz('date due');
             $table->dateTimeTz('date returned')->nullable();
-            $table->unsignedSmallInteger('points');
+            $table->unsignedSmallInteger('points')->nullable();
             $table->timestamps();
         });
     }

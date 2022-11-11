@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\AccessLevel;
 use App\Models\Book;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class BookSeeder extends Seeder
@@ -16,5 +16,13 @@ class BookSeeder extends Seeder
     public function run()
     {
         Book::factory()->count(100)->create();
+
+        $accessLevels = AccessLevel::all();
+
+        Book::all()->each(function ($book) use ($accessLevels) {
+            $book->accessLevels()->attach(
+              $accessLevels->random(rand(1,3))->pluck('id')->toArray()
+            );
+        });
     }
 }
