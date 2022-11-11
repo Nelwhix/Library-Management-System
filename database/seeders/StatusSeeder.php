@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\Status;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Ulid\Ulid;
 
 class StatusSeeder extends Seeder
 {
@@ -35,9 +37,13 @@ class StatusSeeder extends Seeder
         ];
 
         foreach ($seedData as $seed) {
-            Status::create([
+            DB::table('status')->insert([
+                "id" => Ulid::generate(),
                 "name" => $seed["name"],
                 "description" => $seed["description"],
+                "statusable_id" => Ulid::generate(),
+                "statusable_type" => fake()->randomElement(["App\Models\Book", "App\Models\User", "App\Models\Plan"]),
+                "created_at" => now()
             ]);
         }
     }

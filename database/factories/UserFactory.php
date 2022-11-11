@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Access_Level;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -17,11 +18,26 @@ class UserFactory extends Factory
      */
     public function definition()
     {
+        $age = fake()->numberBetween(7,100);
+
+        $access_level = match(true) {
+            $age >= 7 && $age < 15 => Access_Level::where('age', "7 to 15")->first(),
+
+            $age >= 15 && $age <= 24 => Access_Level::where('age', "15 to 24")->first(),
+
+            $age >= 25 && $age <= 49  => Access_Level::where('age', "25 to 49")->first(),
+
+            $age >= 50 => Access_Level::where('age', "50 and above")->first(),
+        };
+
+        $access_level_id = $access_level->id;
+
         return [
             'firstName' => fake()->firstName(),
             'lastName' => fake()->lastName(),
             'userName' => fake()->userName(),
-            'age' => fake()->numberBetween(7, 100),
+            'age' => $age,
+            'access_level_id' => $access_level_id,
             'address' => fake()->address(),
             'points' => fake()->numberBetween(10, 100),
             'email' => fake()->unique()->safeEmail(),

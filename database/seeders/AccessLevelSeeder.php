@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Access_Level;
+use Ulid\Ulid;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
-class Access_LevelSeeder extends Seeder
+class AccessLevelSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -22,7 +23,7 @@ class Access_LevelSeeder extends Seeder
             ],
             [
                 "name" => "Children Exclusive",
-                "age" => "15 to 24",
+                "age" => "7 to 15",
                 "borrowing-point" => 10
             ],
             [
@@ -58,10 +59,12 @@ class Access_LevelSeeder extends Seeder
         ];
 
         foreach ($seedData as $seed) {
-            Access_Level::create([
+            DB::table('accesslevels')->insert([
+                'id' => Ulid::generate(),
                 'name' => $seed["name"],
                 'age' => $seed["age"],
                 'borrowing_point' => $seed["borrowing-point"],
+                'created_at' => now(),
             ]);
         }
     }

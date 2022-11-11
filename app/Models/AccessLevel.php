@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Access_Level extends Model
+class AccessLevel extends Model
 {
     use HasFactory, HasUlids;
+
+    protected $table = 'accesslevels';
 
     public function users() {
         return $this->hasMany(User::class);

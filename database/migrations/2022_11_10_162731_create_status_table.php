@@ -17,8 +17,8 @@ return new class extends Migration
             $table->ulid('id');
             $table->string('name');
             $table->string('description');
-            $table->ulid('statustable_id');
-            $table->ulid('statustable_type');
+            $table->ulid('statusable_id');
+            $table->ulid('statusable_type');
             $table->timestamps();
         });
     }

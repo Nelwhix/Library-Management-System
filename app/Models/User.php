@@ -25,7 +25,9 @@ class User extends Authenticatable
         'email',
         'password',
         'age',
-        'address'
+        'address',
+        'points',
+        'access_level_id',
     ];
 
     /**
@@ -52,8 +54,8 @@ class User extends Authenticatable
         return $this->hasMany(Lending::class);
     }
 
-    public function access_levels() {
-        return $this->belongsTo(Access_Level::class);
+    public function accesslevels() {
+        return $this->belongsTo(AccessLevel::class);
     }
 
     public function books() {
@@ -61,6 +63,6 @@ class User extends Authenticatable
     }
 
     public function status() {
-
+        return $this->morphOne(Status::class, 'statusable');
     }
 }

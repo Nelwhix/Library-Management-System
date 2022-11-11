@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('edition');
             $table->longText('description');
             $table->string('prologue');
-            $table->foreignUlid('access_level_id');
             $table->string('tags');
             $table->string('categories');
             $table->timestamps();

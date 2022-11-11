@@ -18,11 +18,15 @@ class Book extends Model
         return $this->belongsToMany(Plan::class);
     }
 
-    public function access_levels() {
-        return $this->belongsToMany(Access_Level::class);
+    public function accesslevels() {
+        return $this->belongsToMany(AccessLevel::class);
     }
 
     public function users() {
         return $this->belongsToMany(User::class);
+    }
+
+    public function status() {
+        return $this->morphOne(Status::class, 'statusable');
     }
 }

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->ulid('id');
             $table->string('name');
             $table->unsignedInteger('price');
-            $table->unsignedInteger('duration');
+            $table->string('duration');
             $table->timestamps();
         });
     }
