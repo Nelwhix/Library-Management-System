@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\AccessLevel;
-use App\Models\Plan;
 use App\Models\User;
 
 
@@ -22,15 +20,7 @@ test('user can register and get token', function () {
 });
 
 test('user can edit profile', function () {
-    $freePlan = Plan::where('name', 'Free')->first();
-    $child = AccessLevel::where('name', 'Children')->first();
-
-    $user = User::factory()->create([
-        'access_level_id' => $child->id,
-        'plan_id' => $freePlan->id,
-    ]);
-
-   $response = $this->actingAs($user, 'web')->put('/profile/edit', [
+   $response = mockUser()->put('/profile/edit', [
        'firstName' => 'Updated firstName',
        'lastName' => 'Updated lastName',
        'userName' => 'Updated userName',

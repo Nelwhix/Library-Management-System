@@ -17,15 +17,12 @@ class LendingFactory extends Factory
      */
     public function definition()
     {
-        $dateBorrowed = Carbon::create(fake()->dateTime());
-        $dateDue = $dateBorrowed->addDays(fake()->numberBetween(10,100));
-
-
+        $fakeTime = fake()->dateTime();
 
         return [
-            'date borrowed' => $dateBorrowed,
-            'date due' => $dateDue,
-            'points' => fake()->numberBetween(10, 100),
+            'date_borrowed' => Carbon::create($fakeTime),
+            'date_due' => Carbon::create($fakeTime)->addDays(7),
+            'points' => fake()->numberBetween(-1, 2),
         ];
     }
 }
