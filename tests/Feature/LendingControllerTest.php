@@ -6,7 +6,7 @@ use App\Models\Lending;
 use App\Models\Plan;
 use App\Models\Status;
 use App\Models\User;
-use Illuminate\Support\Carbon;
+use function PHPUnit\Framework\assertEquals;
 
 test("users with wrong access level can't borrow", function () {
     $access_level = AccessLevel::where('name', 'Children')->first();
@@ -22,6 +22,13 @@ test("users with wrong access level can't borrow", function () {
     $book->plans()->attach([
         'book_id' => $book->id,
         'plan_id' => $bookPlan->id
+    ]);
+
+    Status::factory()->create([
+        'name' => 'available',
+        'description' => 'available book',
+        'statusable_id' => $book->id,
+        'statusable_type' => 'App\Models\Book'
     ]);
 
     $user = User::factory()->create([
@@ -50,6 +57,12 @@ test("users with wrong plan can't borrow", function () {
         'book_id' => $book->id,
         'access_level_id' => $bookAccess->id
     ]);
+    Status::factory()->create([
+        'name' => 'available',
+        'description' => 'available book',
+        'statusable_id' => $book->id,
+        'statusable_type' => 'App\Models\Book'
+    ]);
 
     // Mock user is a youth user on a free plan
     $response = mockUser()->post('/borrow-book', $book->toArray());
@@ -67,29 +80,28 @@ test('user cannot borrow unavailable book', function () {
     $youthAccess = AccessLevel::where('name', 'Youth')->first();
     $freePlan = Plan::where('name', 'Free')->first();
 
-    $user = User::factory()->create([
-        'access_level_id' => $youthAccess->id,
-        'plan_id' => $freePlan->id,
+
+    $book = Book::factory()->create();
+    $book->plans()->attach([
+        'book_id' => $book->id,
+        'plan_id' => $freePlan->id
+    ]);
+    $book->accessLevels()->attach([
+        'book_id' => $book->id,
+        'access_level_id' => $youthAccess->id
     ]);
 
-//    $book = Book::factory()->create();
-//    $book->plans()->attach([
-//        'book_id' => $book->id,
-//        'plan_id' => $freePlan->id
-//    ]);
-//    $book->accessLevels()->attach([
-//        'book_id' => $book->id,
-//        'access_level_id' => $youthAccess->id
-//    ]);
+    Status::factory()->create([
+        'name' => 'borrowed',
+        'description' => 'borrowed entity(book)',
+        'statusable_id' => $book->id,
+        'statusable_type' => 'App\Models\Book'
+    ]);
 
-    // creating an unavailable book
-    $book = Book::where('id', '01ghmenmhhxrjh84j0a44mzfaf')->first();
+    $response = mockUser()->post('/borrow-book', $book->toArray());
 
-
-    $response = $this->actingAs($user, 'web')->post('/borrow-book', $book->toArray());
-
-    $response->assertStatus(201);
-})->skip();
+    $response->assertStatus(403);
+});
 
 test('user can borrow many books', function () {
     // Let's see if user can borrow three books
@@ -106,19 +118,21 @@ test('user can borrow many books', function () {
 
 test('user gets 2 points on book return', function () {
     $book = mockBook();
+
     $youthAccess = AccessLevel::where('name', 'Youth')->first();
     $freePlan = Plan::where('name', 'Free')->first();
-
     $user = User::factory()->create([
         'access_level_id' => $youthAccess->id,
         'plan_id' => $freePlan->id,
     ]);
 
+    $pointsBefore = $user->points;
+
     Lending::factory()->create([
         'book_id' => $book->id,
         'user_id' => $user->id,
-        'date_borrowed' => Carbon::now()->subDays(6),
-        'date_due' => Carbon::now()->addDay(),
+        'date_borrowed' => now()->subDays(6),
+        'date_due' => now()->addDay(),
     ]);
 
     Status::factory()->create([
@@ -129,30 +143,109 @@ test('user gets 2 points on book return', function () {
     $response = $this->actingAs($user, 'web')->put('/return-book', $book->toArray());
 
     $response->assertStatus(200)->assertJson([
-        "message" => "Book returned successfully, You have gained 2 point(s)"
+        "message" => "Book returned successfully, You have gained 2 points"
     ]);
-})->skip();
+
+    assertEquals($user->fresh()->points - $pointsBefore, 2);
+});
 
 test('user loses a point on late return', function () {
     $book = mockBook();
+
     $youthAccess = AccessLevel::where('name', 'Youth')->first();
     $freePlan = Plan::where('name', 'Free')->first();
-
     $user = User::factory()->create([
         'access_level_id' => $youthAccess->id,
         'plan_id' => $freePlan->id,
     ]);
 
+    $pointsBefore = $user->points;
+
     Lending::factory()->create([
+        'date_borrowed' => now()->subDays(10),
+        'date_due' => now()->subDays(3),
         'book_id' => $book->id,
         'user_id' => $user->id,
     ]);
 
-    $response = $this->actingAs($user, 'web')->put('/return-book', $book->toArray());
+    Status::factory()->create([
+        'statusable_id' => $book->id,
+        'statusable_type' => 'App\Models\Book'
+    ]);
 
-    $response->assertStatus(200);
+    $response = $this->actingAs($user, 'web')->put('/return-book', $book->toArray());
 
     $response->assertStatus(200)->assertJson([
         "message" => "Book returned successfully, You have lost a point"
     ]);
-})->skip();
+
+    assertEquals($pointsBefore - $user->fresh()->points, 1);
+});
+
+test('user can see all books he has borrowed', function () {
+    $youthAccess = AccessLevel::where('name', 'Youth')->first();
+    $freePlan = Plan::where('name', 'Free')->first();
+    $user = User::factory()->create([
+        'access_level_id' => $youthAccess->id,
+        'plan_id' => $freePlan->id,
+    ]);
+
+   $books1 = mockBooks(6);
+   $books2 = mockBooks(4);
+
+   // let's make 6 borrowed books and 4 returned books for this user
+    foreach ($books1 as $book) {
+        Lending::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id
+        ]);
+    }
+
+    foreach ($books2 as $book) {
+        Lending::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'date_returned' => now()
+        ]);
+    }
+
+    $response = $this->actingAs($user, 'web')->get('/borrow/index');
+
+    $response->assertStatus(200)->assertJson([
+        "message" => "You have ". count($books1) . " borrowed books",
+    ]);
+});
+
+test('user can see all books he has returned', function () {
+    $youthAccess = AccessLevel::where('name', 'Youth')->first();
+    $freePlan = Plan::where('name', 'Free')->first();
+    $user = User::factory()->create([
+        'access_level_id' => $youthAccess->id,
+        'plan_id' => $freePlan->id,
+    ]);
+
+    $books1 = mockBooks(6);
+    $books2 = mockBooks(4);
+
+    // let's make 6 borrowed books and 4 returned books for this user
+    foreach ($books1 as $book) {
+        Lending::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id
+        ]);
+    }
+
+    foreach ($books2 as $book) {
+        Lending::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'date_returned' => now()
+        ]);
+    }
+
+    $response = $this->actingAs($user, 'web')->get('/return/index');
+
+    $response->assertStatus(200)->assertJson([
+        "message" => "You have ". count($books2) . " borrowed books",
+    ]);
+});

@@ -31,3 +31,8 @@ test('user can edit profile', function () {
    $response->assertStatus(200);
 });
 
+test('user can log out and revoke tokens', function () {
+   $response = mockUser()->post('/logout');
+
+   $response->assertStatus(200);
+});

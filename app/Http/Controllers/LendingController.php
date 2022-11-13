@@ -23,9 +23,10 @@ class LendingController extends Controller
             return response("Book does not exist on our database", 404);
         }
 
-        // TODO Check if book is available
-
-
+        // check if book is available
+        if ($book->status->name === "borrowed") {
+            return response("Book is currently unavailable", 403);
+        }
 
         $user_id = auth()->user()->id;
         $user = User::where('id', $user_id)->first();
@@ -73,10 +74,9 @@ class LendingController extends Controller
             ->where('edition', $fields['edition'])->first();
 
         $user = User::find(auth()->user()->id);
-        $timeDifference = now()->diffInDays(Carbon::create($book->date_due));
+        $timeDifference = Carbon::create($book->lendings->date_due)->diffInDays(now());
 
-
-        if ($timeDifference > 7) {
+        if ($timeDifference > 0) {
             $user->points -= 1;
             $points = -1;
         } else {
@@ -86,11 +86,9 @@ class LendingController extends Controller
         $user->save();
 
         // make the book available again
-        $bookStatus = Status::where('statusable_id', $book->id)->first();
-        //dd($bookStatus);
-        $bookStatus->name = "available";
-        $bookStatus->description = "available book";
-        $bookStatus->save();
+        $book->status->name = "available";
+        $book->status->description = "available book";
+        $book->status->save();
 
         if ($points > 0) {
             return response([
@@ -101,6 +99,33 @@ class LendingController extends Controller
                 "message" => "Book returned successfully, You have lost a point"
             ], 200);
         }
+    }
 
+    public function index() {
+        $lendings = Lending::where('user_id', auth()->user()->id)->get();
+
+        // remove lendings that have been returned
+        $filtered = $lendings->reject(function($lending) {
+           return $lending->date_returned;
+        });
+
+        return response([
+            "message" => "You have ". count($filtered->all()) . " borrowed books",
+            "books" => $filtered->all()
+        ], 200);
+    }
+
+    public function returnindex() {
+        $lendings = Lending::where('user_id', auth()->user()->id)->get();
+
+        // remove lendings that are not yet returned
+        $filtered = $lendings->reject(function($lending) {
+            return !$lending->date_returned;
+        });
+
+        return response([
+            "message" => "You have ". count($filtered->all()) . " borrowed books",
+            "books" => $filtered->all()
+        ], 200);
     }
 }

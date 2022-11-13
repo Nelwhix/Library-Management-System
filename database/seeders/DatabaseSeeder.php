@@ -17,7 +17,6 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             AccessLevelSeeder::class,
             PlanSeeder::class,
-            BookSeeder::class,
         ]);
     }
 }

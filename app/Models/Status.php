@@ -20,6 +20,6 @@ class Status extends Model
     ];
 
     public function statusable() {
-        return $this->morphTo(__FUNCTION__, 'statusable_type', 'statusable_id');
+        return $this->morphTo();
     }
 }
