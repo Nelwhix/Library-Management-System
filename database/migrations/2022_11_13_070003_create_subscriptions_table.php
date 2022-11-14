@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('plan_user', function (Blueprint $table) {
+        Schema::create('subscriptions', function (Blueprint $table) {
             $table->ulid('id');
             $table->foreignUlid('plan_id');
             $table->foreignUlid('user_id');
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('plan_user');
+        Schema::dropIfExists('subscriptions');
     }
 };

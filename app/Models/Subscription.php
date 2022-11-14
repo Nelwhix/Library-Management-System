@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class PlanUser extends Pivot
+class Subscription extends Pivot
 {
-    use HasUlids;
+    use HasUlids, HasFactory;
 
-    protected $table = 'plan_user';
+    protected $table = 'subscriptions';
 
     protected $fillable = [
         'plan_id',
@@ -17,6 +18,6 @@ class PlanUser extends Pivot
     ];
 
     public function status() {
-        return $this->morphToMany(Status::class, 'statusable');
+        return $this->morphOne(Status::class, 'statusable');
     }
 }

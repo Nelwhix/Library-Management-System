@@ -45,7 +45,7 @@ class LendingController extends Controller
             $bookPlanArray[] = $plan->pivot->plan_id;
         }
 
-        $userPlanId = $userPlan->pivot->plan_id;
+        $userPlanId = $userPlan->subscription->plan_id;
         // checking whether user has the right plan for book
         if (!in_array($userPlanId, $bookPlanArray)) {
             return response("You don't have the right plan for this book", 403);

@@ -24,6 +24,6 @@ class Status extends Model
     }
 
     public function planuser() {
-        return $this->morphedByMany(PlanUser::class, 'statusable');
+        return $this->morphedByMany(Subscription::class, 'statusable');
     }
 }

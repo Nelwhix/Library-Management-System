@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AccessLevel;
 use App\Models\Plan;
-use App\Models\PlanUser;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -39,7 +39,7 @@ class UserController extends Controller
             'points' => 0,
         ])->assignRole('reader');
 
-        PlanUser::create([
+        Subscription::create([
            'user_id' => $user->id,
            'plan_id' => $freePlan->id,
         ]);

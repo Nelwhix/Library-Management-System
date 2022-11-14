@@ -2,9 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Access_Level;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -18,8 +16,6 @@ class UserFactory extends Factory
      */
     public function definition()
     {
-
-
         return [
             'firstName' => fake()->firstName(),
             'lastName' => fake()->lastName(),

@@ -3,7 +3,7 @@
 use App\Models\AccessLevel;
 use App\Models\Book;
 use App\Models\Plan;
-use App\Models\PlanUser;
+use App\Models\Subscription;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Database\Events\MigrationsEnded;

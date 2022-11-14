@@ -68,6 +68,7 @@ class User extends Authenticatable
     }
 
     public function plans() {
-        return $this->belongsToMany(Plan::class)->using(PlanUser::class);
+        return $this->belongsToMany(Plan::class, 'subscriptions')->as('subscription')
+            ->orderByPivot('created_at', 'desc')->using(Subscription::class);
     }
 }

@@ -32,7 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // users can see how many books returned (by self)
     Route::get('/return/index', [LendingController::class, 'returnindex']);
 
-    // users can upgrade their plans
+    // users can subscribe to a plan
     Route::post('/plan/subscribe', [PlanController::class, 'store']);
 
     // users can see their previous subscriptions
