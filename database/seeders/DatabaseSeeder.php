@@ -13,10 +13,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        // only uncomment admin seeder for postman tests
+
         $this->call([
             AccessLevelSeeder::class,
             PermissionSeeder::class,
             PlanSeeder::class,
+            // AdminSeeder::class,
         ]);
     }
 }

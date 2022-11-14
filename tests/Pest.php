@@ -87,4 +87,20 @@ function mockBooks(Int $num) {
     return $books;
 }
 
+function mockAuthor() {
+    $youthAccess = AccessLevel::where('name', 'Youth')->first();
+    $freePlan = Plan::where('name', 'Free')->first();
+
+    $user = User::factory()->create([
+        'access_level_id' => $youthAccess->id,
+    ])->assignRole('author');
+
+    $user->plans()->attach([
+        'user_id' => $user->id,
+        'plan_id' => $freePlan->id
+    ]);
+
+    return test()->actingAs($user, 'web');
+}
+
 

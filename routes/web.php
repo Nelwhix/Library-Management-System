@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BookController;
 use App\Http\Controllers\LendingController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\UserController;
@@ -37,4 +38,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // users can see their previous subscriptions
     Route::get('/plans/index', [PlanController::class, 'index']);
+
+    // author can add new book
+    Route::post('/book/add', [BookController::class, 'store']);
+
+    // author can see his books
+    Route::get('/books/index', [BookController::class, 'index']);
+
+    // author can update his book
+    Route::put('/books/update', [BookController::class, 'update']);
 });

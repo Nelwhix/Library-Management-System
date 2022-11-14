@@ -10,6 +10,15 @@ class Book extends Model
 {
     use HasFactory, HasUlids;
 
+    protected $fillable = [
+      'title',
+      'description',
+      'prologue',
+      'tags',
+      'categories',
+      'edition'
+    ];
+
     public function lendings() {
         return $this->hasOne(Lending::class);
     }

@@ -51,8 +51,15 @@ class PlanController extends Controller
     }
 
     public function index() {
-        $allUsersPlans = Subscription::where('user_id', auth()->user()->id)->get();
+        $allSubs = Subscription::with('status')->where('user_id', auth()->user()->id)->get();
 
-        dd($allUsersPlans);
+        // remove the active sub from the collection
+        $inactiveSubs = $allSubs->filter(function ($allSub) {
+            return $allSub->status->name == 'inactive';
+        });
+
+        return response([
+           'past_subs' => $inactiveSubs,
+        ], 200);
     }
 }

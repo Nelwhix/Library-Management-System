@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\AccessLevel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,6 +25,7 @@ class UserFactory extends Factory
             'address' => fake()->address(),
             'points' => fake()->numberBetween(10, 100),
             'email' => fake()->unique()->safeEmail(),
+            'access_level_id' => AccessLevel::where('name', 'Youth')->pluck('id')->first(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
         ];
     }

@@ -53,11 +53,23 @@ test('user can see all past(inactive) subscriptions', function () {
         'access_level_id' => $youthAccess->id,
     ]);
 
-    $plansId = Plan::pluck('id')->all();
+    $bronzePlanId = Plan::where('name', 'Bronze')->pluck('id')->first();
+    // creating some past subscriptions
+    $subscriptions1 = Subscription::factory()->count(10)->create([
+        'plan_id' => $bronzePlanId,
+        'user_id' => $user->id
+    ]);
 
-
+    foreach($subscriptions1 as $subscription) {
+        Status::factory()->create([
+           'name' => 'inactive',
+           'description' => 'inactive_entity',
+            'statusable_id' => $subscription->id,
+            'statusable_type' => 'App\Models\Subscription'
+        ]);
+    }
 
     $response = $this->actingAs($user, 'web')->get('plans/index');
 
     $response->assertStatus(200);
-})->skip();
+});
