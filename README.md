@@ -1,2 +1,2 @@
 # Book-Api
-    ![database schema](/public/dbschema.png)
+![database schema](/public/dbschema.png)
