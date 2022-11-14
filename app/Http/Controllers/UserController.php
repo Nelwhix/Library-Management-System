@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AccessLevel;
 use App\Models\Plan;
+use App\Models\PlanUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +25,7 @@ class UserController extends Controller
 
         // Assign user an access level and free plan
         $access_level = $this->accessQuery($fields['age']);
-        $plan = Plan::where('name', 'Free')->first();
+        $freePlan = Plan::where('name', 'Free')->first();
 
         $user = User::create([
             'firstName' => $fields['firstName'],
@@ -35,9 +36,13 @@ class UserController extends Controller
             'address' => $fields['address'],
             'password' => bcrypt($fields['password']),
             'access_level_id' => $access_level->id,
-            'plan_id' => $plan->id,
             'points' => 0,
         ])->assignRole('reader');
+
+        PlanUser::create([
+           'user_id' => $user->id,
+           'plan_id' => $freePlan->id,
+        ]);
 
         $token = $user->createToken('appToken')->plainTextToken;
 

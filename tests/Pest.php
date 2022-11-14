@@ -3,6 +3,7 @@
 use App\Models\AccessLevel;
 use App\Models\Book;
 use App\Models\Plan;
+use App\Models\PlanUser;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Database\Events\MigrationsEnded;
@@ -17,14 +18,20 @@ uses()->beforeEach(function () {
     $this->seed();
 })->in('Feature');
 
-function mockUser($user = null) {
+function mockUser() {
     $youthAccess = AccessLevel::where('name', 'Youth')->first();
     $freePlan = Plan::where('name', 'Free')->first();
 
-    return test()->actingAs($user ?? User::factory()->create([
+    $user = User::factory()->create([
         'access_level_id' => $youthAccess->id,
-        'plan_id' => $freePlan->id,
-    ]), 'web');
+    ]);
+
+    $user->plans()->attach([
+       'user_id' => $user->id,
+        'plan_id' => $freePlan->id
+    ]);
+
+    return test()->actingAs($user, 'web');
 }
 
 function mockBook() {

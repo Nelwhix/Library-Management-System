@@ -11,19 +11,13 @@ use function PHPUnit\Framework\assertEquals;
 test("users with wrong access level can't borrow", function () {
     $access_level = AccessLevel::where('name', 'Children')->first();
 
-    // creating a youth book on silver plan
+    // creating a youth book
     $book = Book::factory()->create();
     $bookAccess = AccessLevel::where('name', 'Youth')->first();
     $book->accessLevels()->attach([
         'book_id' => $book->id,
         'access_level_id' => $bookAccess->id
     ]);
-    $bookPlan = Plan::where('name', 'Silver')->first();
-    $book->plans()->attach([
-        'book_id' => $book->id,
-        'plan_id' => $bookPlan->id
-    ]);
-
     Status::factory()->create([
         'name' => 'available',
         'description' => 'available book',
@@ -32,8 +26,7 @@ test("users with wrong access level can't borrow", function () {
     ]);
 
     $user = User::factory()->create([
-        'access_level_id' => $access_level->id, // this is a child's access level on silver plan
-        'plan_id' => $bookPlan->id,
+        'access_level_id' => $access_level->id, // this is a child's access level
     ]);
 
     $response = $this->actingAs($user, 'web')->post('/borrow-book', $book->toArray());
@@ -48,10 +41,12 @@ test("users with wrong plan can't borrow", function () {
     // creating a book on silver plan and youth access level
     $book = Book::factory()->create();
     $bookPlan = Plan::where('name', 'Silver')->first();
+
     $book->plans()->attach([
         'book_id' => $book->id,
         'plan_id' => $bookPlan->id
     ]);
+
     $bookAccess = AccessLevel::where('name', 'Youth')->first();
     $book->accessLevels()->attach([
         'book_id' => $book->id,
@@ -120,10 +115,8 @@ test('user gets 2 points on book return', function () {
     $book = mockBook();
 
     $youthAccess = AccessLevel::where('name', 'Youth')->first();
-    $freePlan = Plan::where('name', 'Free')->first();
     $user = User::factory()->create([
         'access_level_id' => $youthAccess->id,
-        'plan_id' => $freePlan->id,
     ]);
 
     $pointsBefore = $user->points;
@@ -153,10 +146,8 @@ test('user loses a point on late return', function () {
     $book = mockBook();
 
     $youthAccess = AccessLevel::where('name', 'Youth')->first();
-    $freePlan = Plan::where('name', 'Free')->first();
     $user = User::factory()->create([
         'access_level_id' => $youthAccess->id,
-        'plan_id' => $freePlan->id,
     ]);
 
     $pointsBefore = $user->points;
@@ -184,10 +175,8 @@ test('user loses a point on late return', function () {
 
 test('user can see all books he has borrowed', function () {
     $youthAccess = AccessLevel::where('name', 'Youth')->first();
-    $freePlan = Plan::where('name', 'Free')->first();
     $user = User::factory()->create([
         'access_level_id' => $youthAccess->id,
-        'plan_id' => $freePlan->id,
     ]);
 
    $books1 = mockBooks(6);
@@ -218,10 +207,9 @@ test('user can see all books he has borrowed', function () {
 
 test('user can see all books he has returned', function () {
     $youthAccess = AccessLevel::where('name', 'Youth')->first();
-    $freePlan = Plan::where('name', 'Free')->first();
+
     $user = User::factory()->create([
         'access_level_id' => $youthAccess->id,
-        'plan_id' => $freePlan->id,
     ]);
 
     $books1 = mockBooks(6);

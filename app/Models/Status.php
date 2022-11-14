@@ -22,4 +22,8 @@ class Status extends Model
     public function statusable() {
         return $this->morphTo();
     }
+
+    public function planuser() {
+        return $this->morphedByMany(PlanUser::class, 'statusable');
+    }
 }

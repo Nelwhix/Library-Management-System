@@ -18,13 +18,13 @@ class UserFactory extends Factory
      */
     public function definition()
     {
-        $age = fake()->numberBetween(7,100);
+
 
         return [
             'firstName' => fake()->firstName(),
             'lastName' => fake()->lastName(),
             'userName' => fake()->userName(),
-            'age' => $age,
+            'age' => fake()->numberBetween(7,100),
             'address' => fake()->address(),
             'points' => fake()->numberBetween(10, 100),
             'email' => fake()->unique()->safeEmail(),

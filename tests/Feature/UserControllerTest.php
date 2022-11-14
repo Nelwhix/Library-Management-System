@@ -11,11 +11,19 @@ test('app starts', function () {
 });
 
 test('user can register and get token', function () {
-    $user = User::factory()->make([
-        'password_confirmation' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'
-    ]);
+    $user = [
+        'firstName' => fake()->firstName(),
+        'lastName' => fake()->lastName(),
+        'userName' => fake()->userName(),
+        'age' => fake()->numberBetween(7,100),
+        'address' => fake()->address(),
+        'points' => fake()->numberBetween(10, 100),
+        'email' => fake()->unique()->safeEmail(),
+        'password' => '1234',
+        'password_confirmation' => '1234'
+    ];
 
-   $response = $this->post('/register', $user->toArray());
+   $response = $this->post('/register', $user);
    $response->assertStatus(201);
 });
 

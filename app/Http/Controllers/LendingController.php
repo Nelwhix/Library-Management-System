@@ -28,8 +28,7 @@ class LendingController extends Controller
             return response("Book is currently unavailable", 403);
         }
 
-        $user_id = auth()->user()->id;
-        $user = User::where('id', $user_id)->first();
+        $user = User::find(auth()->user()->id);
 
         // checking whether user has right access level for book
         $bookAccessLevels = $book->accessLevels;
@@ -38,17 +37,24 @@ class LendingController extends Controller
             return response("You don't have the right access level to borrow this book", 403);
         }
 
-        // checking whether user has the right plan for book
+        // getting all the plans for a book
         $bookPlans = $book->plans;
+        $userPlan = $user->plans->first();
 
-        if ($bookPlans->find($user->plan_id) === null) {
+        foreach($bookPlans as $plan) {
+            $bookPlanArray[] = $plan->pivot->plan_id;
+        }
+
+        $userPlanId = $userPlan->pivot->plan_id;
+        // checking whether user has the right plan for book
+        if (!in_array($userPlanId, $bookPlanArray)) {
             return response("You don't have the right plan for this book", 403);
         }
 
         // Every book must be returned in a week
         Lending::create([
             'book_id' => $book->id,
-            'user_id' => $user_id,
+            'user_id' => $user->id,
             'date_borrowed' => now(),
             'date_due' => now()->addDays(7)
         ]);

@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles, HasUlids;
@@ -28,7 +29,6 @@ class User extends Authenticatable
         'address',
         'points',
         'access_level_id',
-        'plan_id'
     ];
 
     /**
@@ -37,7 +37,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-//        'password',
+        'password',
         'remember_token',
     ];
 
@@ -68,6 +68,6 @@ class User extends Authenticatable
     }
 
     public function plans() {
-        return $this->belongsTo(Plan::class);
+        return $this->belongsToMany(Plan::class)->using(PlanUser::class);
     }
 }
