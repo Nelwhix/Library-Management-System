@@ -23,12 +23,12 @@ test('user can register and get token', function () {
         'password_confirmation' => '1234'
     ];
 
-   $response = $this->post('/register', $user);
+   $response = $this->post('/api/register', $user);
    $response->assertStatus(201);
 });
 
 test('user can edit profile', function () {
-   $response = mockUser()->put('/profile/edit', [
+   $response = mockUser()->put('/api/profile/edit', [
        'firstName' => 'Updated firstName',
        'lastName' => 'Updated lastName',
        'userName' => 'Updated userName',
@@ -40,7 +40,7 @@ test('user can edit profile', function () {
 });
 
 test('user can log out and revoke tokens', function () {
-   $response = mockUser()->post('/logout');
+   $response = mockUser()->post('/api/logout');
 
    $response->assertStatus(200);
 });

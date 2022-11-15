@@ -10,6 +10,12 @@ class AccessLevel extends Model
 {
     use HasFactory, HasUlids;
 
+    protected $fillable = [
+        "name",
+        "age",
+        "borrowing_point"
+    ];
+
     protected $table = 'accesslevels';
 
     public function users() {

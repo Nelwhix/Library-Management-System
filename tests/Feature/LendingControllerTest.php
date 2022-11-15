@@ -29,7 +29,7 @@ test("users with wrong access level can't borrow", function () {
         'access_level_id' => $access_level->id, // this is a child's access level
     ]);
 
-    $response = $this->actingAs($user, 'web')->post('/borrow-book', $book->toArray());
+    $response = $this->actingAs($user, 'web')->post('/api/borrow-book', $book->toArray());
 
     $response->assertStatus(403);
 });
@@ -60,13 +60,13 @@ test("users with wrong plan can't borrow", function () {
     ]);
 
     // Mock user is a youth user on a free plan
-    $response = mockUser()->post('/borrow-book', $book->toArray());
+    $response = mockUser()->post('/api/borrow-book', $book->toArray());
 
     $response->assertStatus(403);
 });
 
 test('user can borrow book', function () {
-   $response = mockUser()->post('/borrow-book', mockBook()->toArray());
+   $response = mockUser()->post('/api/borrow-book', mockBook()->toArray());
 
    $response->assertStatus(201);
 });
@@ -93,18 +93,18 @@ test('user cannot borrow unavailable book', function () {
         'statusable_type' => 'App\Models\Book'
     ]);
 
-    $response = mockUser()->post('/borrow-book', $book->toArray());
+    $response = mockUser()->post('/api/borrow-book', $book->toArray());
 
-    $response->assertStatus(403);
+    $response->assertStatus(422);
 });
 
 test('user can borrow many books', function () {
     // Let's see if user can borrow three books
     $user = mockUser();
 
-    $response1 = $user->post('/borrow-book', mockBook()->toArray());
-    $response2 = $user->post('/borrow-book', mockBook()->toArray());
-    $response3 = $user->post('/borrow-book', mockBook()->toArray());
+    $response1 = $user->post('/api/borrow-book', mockBook()->toArray());
+    $response2 = $user->post('/api/borrow-book', mockBook()->toArray());
+    $response3 = $user->post('/api/borrow-book', mockBook()->toArray());
 
     $response1->assertStatus(201);
     $response2->assertStatus(201);
@@ -125,7 +125,7 @@ test('user gets 2 points on book return', function () {
         'book_id' => $book->id,
         'user_id' => $user->id,
         'date_borrowed' => now()->subDays(6),
-        'date_due' => now()->addDay(),
+        'date_due' => now()->addDays(3),
     ]);
 
     Status::factory()->create([
@@ -133,7 +133,7 @@ test('user gets 2 points on book return', function () {
         'statusable_type' => 'App\Models\Book'
     ]);
 
-    $response = $this->actingAs($user, 'web')->put('/return-book', $book->toArray());
+    $response = $this->actingAs($user, 'web')->put('/api/return-book', $book->toArray());
 
     $response->assertStatus(200)->assertJson([
         "message" => "Book returned successfully, You have gained 2 points"
@@ -164,7 +164,7 @@ test('user loses a point on late return', function () {
         'statusable_type' => 'App\Models\Book'
     ]);
 
-    $response = $this->actingAs($user, 'web')->put('/return-book', $book->toArray());
+    $response = $this->actingAs($user, 'web')->put('/api/return-book', $book->toArray());
 
     $response->assertStatus(200)->assertJson([
         "message" => "Book returned successfully, You have lost a point"
@@ -198,7 +198,7 @@ test('user can see all books he has borrowed', function () {
         ]);
     }
 
-    $response = $this->actingAs($user, 'web')->get('/borrow/index');
+    $response = $this->actingAs($user, 'web')->get('/api/borrow/index');
 
     $response->assertStatus(200)->assertJson([
         "message" => "You have ". count($books1) . " borrowed books",
@@ -231,9 +231,9 @@ test('user can see all books he has returned', function () {
         ]);
     }
 
-    $response = $this->actingAs($user, 'web')->get('/return/index');
+    $response = $this->actingAs($user, 'web')->get('/api/return/index');
 
     $response->assertStatus(200)->assertJson([
-        "message" => "You have ". count($books2) . " borrowed books",
+        "message" => "You have ". count($books2) . " returns",
     ]);
 });

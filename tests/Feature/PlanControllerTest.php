@@ -7,7 +7,7 @@ use App\Models\Status;
 use App\Models\User;
 
 test('user can subscribe to a plan', function () {
-    $response = mockUser()->post('/plan/subscribe', [
+    $response = mockUser()->post('/api/plan/subscribe', [
         'plan_name' => 'Silver'
     ]);
 
@@ -37,7 +37,7 @@ test('user can have only one active subscription', function () {
         'statusable_type' => 'App\Models\Subscription'
     ]);
 
-    $response = $this->actingAs($user, 'web')->post('/plan/subscribe', [
+    $response = $this->actingAs($user, 'web')->post('/api/plan/subscribe', [
         'plan_name' => 'Gold'
     ]);
 
@@ -69,7 +69,7 @@ test('user can see all past(inactive) subscriptions', function () {
         ]);
     }
 
-    $response = $this->actingAs($user, 'web')->get('plans/index');
+    $response = $this->actingAs($user, 'web')->get('/api/plans/index');
 
     $response->assertStatus(200);
 });

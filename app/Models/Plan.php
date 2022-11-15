@@ -10,6 +10,12 @@ class Plan extends Model
 {
     use HasFactory, HasUlids;
 
+    protected $fillable = [
+        "name",
+        "duration",
+        "price"
+    ];
+
     public function planable() {
         return $this->morphTo();
     }

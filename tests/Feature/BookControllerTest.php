@@ -4,10 +4,9 @@ use App\Models\AccessLevel;
 use App\Models\Archive;
 use App\Models\Book;
 use App\Models\User;
-use Database\Factories\UserFactory;
 
 test("user without author role cannot add book", function () {
-    $response = mockUser()->post('/book/add', mockBook()->toArray());
+    $response = mockUser()->post('/api/book/add', mockBook()->toArray());
 
     $response->assertStatus(403)->assertJson([
         'message' => 'You are not authorized to add a book'
@@ -46,10 +45,11 @@ test('author can add a new book', function () {
         'prologue' => fake()->sentence,
         'tags' => implode(" ,", fake()->words()),
         'categories' => implode(" ,", fake()->words(5)),
-        'authors' => 'Chinua Achebe,Wole Soyinka,Chimamanda Adichie'
+        'authors' => 'Chinua Achebe,Wole Soyinka,Chimamanda Adichie',
+        'access_levels' => 'Youth,Youth Exclusive,Senior'
     ];
 
-    $response = mockAuthor()->post('/book/add', $book);
+    $response = mockAuthor()->post('/api/book/add', $book);
     $response->assertStatus(201)->assertJson([
         'message' => $book['title'] . " was successfully added to the Library",
     ]);
@@ -69,22 +69,32 @@ test('author can see his own books', function () {
        ]);
    }
 
-   $response = $this->actingAs($author, 'web')->get('/books/index');
+   $response = $this->actingAs($author, 'web')->get('/api/books/index');
 
    $response->assertStatus(200);
-})->only();
+});
 
 test('author can update his book', function () {
     $user = User::factory()
-        ->hasBooks()
+        ->hasBooks(1)
         ->create();
 
-
-    $updates = Book::factory()->makeOne([
-        'old_title' => $user->book->title,
+    Archive::factory()->create([
+       'user_id' => $user->id,
+       'book_id' => $user->books->first()->id,
     ]);
 
-    $response = mockUser()->put('/books/update', $updates->toArray());
+    $updates = Book::factory()->makeOne([
+        'old_title' => $user->books->first()->title,
+        'title' => 'Updated title',
+        'edition' => '2nd Edition',
+        'description' => fake()->sentence(),
+        'prologue' => fake()->sentence(),
+        'tags' => fake()->sentence(),
+        'categories' => fake()->sentence()
+    ]);
+    $response = $this->actingAs($user, 'web')->put('/api/books/update', $updates->toArray());
 
-    $response->assertStatus(403);
-})->only();
+    $response->assertStatus(200);
+    $this->assertDatabaseHas('books', $updates->toArray());
+})->skip();

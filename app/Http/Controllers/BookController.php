@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccessLevel;
+use App\Models\AccessLevelBook;
 use App\Models\Archive;
 use App\Models\Book;
 use App\Models\User;
@@ -24,10 +26,12 @@ class BookController extends Controller
             'prologue' => 'required|string',
             'tags' => 'required|string',
             'categories' => 'required|string',
-            'authors' => 'required|string'
+            'authors' => 'required|string',
+            'access_levels' => 'required|string',
         ]);
 
         $authorArray = explode(",", $fields['authors']);
+        $accessArray = explode(',', $fields['access_levels']);
 
         $book = Book::create([
             'title' => $fields['title'],
@@ -46,6 +50,15 @@ class BookController extends Controller
             Archive::create([
                'book_id' => $book->id,
                 'user_id' => $user->id,
+            ]);
+        }
+
+        foreach($accessArray as $accessLevel) {
+            $id = AccessLevel::where('name', $accessLevel)->pluck('id')->first();
+
+            AccessLevelBook::create([
+                'access_level_id' => $id,
+                'book_id' => $book->id,
             ]);
         }
 
@@ -88,6 +101,10 @@ class BookController extends Controller
         $book = Book::with('users')->where('name', $fields['old_title'])->first();
 
         // check if author owns book
+        $bookRecords = Archive::where('book_id', $book->id)
+            ->where('user_id', auth()->user()->id)->get();
+
+        dd($bookRecords);
         if ($book->archive->user_id !== auth()->user()->id) {
             return response([
                 "message" => "You do not own this book",

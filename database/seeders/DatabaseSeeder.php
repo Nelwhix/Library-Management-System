@@ -13,13 +13,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // only uncomment admin seeder for postman tests
-
+        // only uncomment admin seeder for postman api calls, it interferes with pestphp testing
         $this->call([
             AccessLevelSeeder::class,
             PermissionSeeder::class,
             PlanSeeder::class,
-            // AdminSeeder::class,
+            //AdminSeeder::class,
             BookSeeder::class
         ]);
     }

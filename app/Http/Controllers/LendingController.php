@@ -20,12 +20,16 @@ class LendingController extends Controller
 
         $book = Book::where('title', $fields['title'])->where('edition', $fields['edition'])->first();
         if ($book === null) {
-            return response("Book does not exist on our database", 404);
+            return response([
+                "message" => "Book does not exist on our database"
+            ], 404);
         }
 
         // check if book is available
         if ($book->status->name === "borrowed") {
-            return response("Book is currently unavailable", 403);
+            return response([
+                "message" => "Book is currently unavailable"
+            ], 422);
         }
 
         $user = User::find(auth()->user()->id);
@@ -34,7 +38,9 @@ class LendingController extends Controller
         $bookAccessLevels = $book->accessLevels;
 
         if ($bookAccessLevels->find($user->access_level_id) === null) {
-            return response("You don't have the right access level to borrow this book", 403);
+            return response([
+                "message" => "You don't have the right access level to borrow this book"
+            ], 403);
         }
 
         // getting all the plans for a book
@@ -48,7 +54,9 @@ class LendingController extends Controller
         $userPlanId = $userPlan->subscription->plan_id;
         // checking whether user has the right plan for book
         if (!in_array($userPlanId, $bookPlanArray)) {
-            return response("You don't have the right plan for this book", 403);
+            return response([
+                "message" => "You don't have the right plan for this book"
+            ], 403);
         }
 
         // Every book must be returned in a week
@@ -59,15 +67,15 @@ class LendingController extends Controller
             'date_due' => now()->addDays(7)
         ]);
 
-        Status::create([
-            'name' => 'borrowed',
-            'description' => 'borrowed entity(book)',
-            'statusable_id' => $book->id,
-            'statusable_type' => "App\Models\Book"
-        ]);
+        // make the book unavailable
+        $bookStatus = Status::where('statusable_id', $book->id)->first();
+        $bookStatus->name = "borrowed";
+        $bookStatus->description = "borrowed entity(book)";
+        $bookStatus->save();
 
-        return response("Book borrowed successfully, Date due for return is" . " " . now()->addDays(7),
-            201);
+        return response([
+            "message" => "Book borrowed successfully, Date due for return is" . " " . now()->addDays(7)
+        ], 201);
     }
 
     public function update(Request $request) {
@@ -80,9 +88,10 @@ class LendingController extends Controller
             ->where('edition', $fields['edition'])->first();
 
         $user = User::find(auth()->user()->id);
-        $timeDifference = Carbon::create($book->lendings->date_due)->diffInDays(now());
+        //$timeDifference = Carbon::create($book->lendings->date_due)->diffInDays(now());
 
-        if ($timeDifference > 0) {
+
+        if ($book->lendings->date_due < now()) {
             $user->points -= 1;
             $points = -1;
         } else {
@@ -90,6 +99,11 @@ class LendingController extends Controller
             $points = 2;
         }
         $user->save();
+
+        $lending = Lending::where('book_id', $book->id)->where('user_id', $user->id)->first();
+
+        $lending->date_returned = now();
+        $lending->save();
 
         // make the book available again
         $book->status->name = "available";
@@ -130,7 +144,7 @@ class LendingController extends Controller
         });
 
         return response([
-            "message" => "You have ". count($filtered->all()) . " borrowed books",
+            "message" => "You have ". count($filtered->all()) . " returns",
             "books" => $filtered->all()
         ], 200);
     }
