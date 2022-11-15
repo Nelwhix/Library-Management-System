@@ -24,17 +24,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/profile/edit', [UserController::class, 'update']);
 
-    Route::post('/borrow-book', [LendingController::class, 'store']);
+    Route::controller(LendingController::class)->group(function () {
+        Route::post('/borrow-book', 'store');
 
-    Route::put('/return-book', [LendingController::class, 'update']);
+        Route::put('/return-book', 'update');
+
+        // users can see how many books borrowed (by self)
+        Route::get('/borrow/index', 'index');
+
+        // users can see how many books returned (by self)
+        Route::get('/return/index', 'returnindex');
+    });
+
+
 
     Route::post('/logout', [UserController::class, 'logout']);
 
-    // users can see how many books borrowed (by self)
-    Route::get('/borrow/index', [LendingController::class, 'index']);
 
-    // users can see how many books returned (by self)
-    Route::get('/return/index', [LendingController::class, 'returnindex']);
 
     // users can subscribe to a plan
     Route::post('/plan/subscribe', [PlanController::class, 'store']);
@@ -51,27 +57,29 @@ Route::middleware('auth:sanctum')->group(function () {
     // author can update his book
     Route::put('/books/update', [BookController::class, 'update']);
 
-    // admin can add a new plan
-    Route::post('/plans/add', [AdminController::class, 'plan_store']);
+    Route::controller(AdminController::class)->group(function () {
+        // admin can add a new plan
+        Route::post('/plans/add', 'plan_store');
 
-    // admin can see all plans on the db
-    Route::get('/plans/index', [AdminController::class, 'plan_index']);
+        // admin can see all plans on the db
+        Route::get('/plans/index', 'plan_index');
 
-    // admin can read one plan
-    Route::post('/plans/show', [AdminController::class, 'plan_show']);
+        // admin can read one plan
+        Route::post('/plans/show','plan_show');
 
-    // admin can update plan
-    Route::put('/plans/update', [AdminController::class, 'plan_update']);
+        // admin can update plan
+        Route::put('/plans/update', 'plan_update');
 
-    // admin can delete a plan
-    Route::delete('/plans/delete', [AdminController::class, 'plan_destroy']);
+        // admin can delete a plan
+        Route::delete('/plans/delete', 'plan_destroy');
 
-    // admin can add a new access level
-    Route::post('/accessLevel/add', [AdminController::class, 'access_level_store']);
+        // admin can add a new access level
+        Route::post('/accessLevel/add', 'access_level_store');
 
-    // admin can see all access levels
-    Route::get('/accessLevel/index', [AdminController::class, 'access_level_index']);
+        // admin can see all access levels
+        Route::get('/accessLevel/index', 'access_level_index');
 
-    // admin can read one access level
-    Route::post('/accessLevel/show', [AdminController::class, 'access_level_show']);
+        // admin can read one access level
+        Route::post('/accessLevel/show', 'access_level_show');
+    });
 });
