@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             PlanSeeder::class,
             // AdminSeeder::class,
+            BookSeeder::class
         ]);
     }
 }

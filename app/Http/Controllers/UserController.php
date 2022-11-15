@@ -34,7 +34,7 @@ class UserController extends Controller
             'email' => $fields['email'],
             'age' => $fields['age'],
             'address' => $fields['address'],
-            'password' => bcrypt($fields['password']),
+            'password' => Hash::make($fields['password']),
             'access_level_id' => $access_level->id,
             'points' => 0,
         ])->assignRole('reader');

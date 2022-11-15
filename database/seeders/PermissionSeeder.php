@@ -37,20 +37,22 @@ class PermissionSeeder extends Seeder
 
         foreach($adminPermissions as $permission) {
             Permission::create([
-                'name' => $permission
+                'name' => $permission,
+                'guard_name' => 'api'
             ]);
         }
 
         foreach($readerPermissions as $permission) {
             Permission::create([
-                'name' => $permission
+                'name' => $permission,
+                'guard_name' => 'api'
             ]);
         }
 
 
-        $admin = Role::create(['name' => 'admin']);
-        $reader = Role::create(['name' => 'reader']);
-        $author = Role::create(['name' => 'author']);
+        $admin = Role::create(['name' => 'admin', 'guard_name' => 'api']);
+        $reader = Role::create(['name' => 'reader', 'guard_name' => 'api']);
+        $author = Role::create(['name' => 'author', 'guard_name' => 'api']);
 
         $admin->syncPermissions($adminPermissions);
         $reader->syncPermissions($readerPermissions);
