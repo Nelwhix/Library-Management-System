@@ -7,7 +7,7 @@
 ```bash
     php artisan migrate --seed
 ```
-Api documentation [here](https://www.google.com)
+Api documentation [here](https://documenter.getpostman.com/view/21273414/2s8YmHwjr6)
 
 
 ## Tests
