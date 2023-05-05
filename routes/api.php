@@ -5,7 +5,6 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\LendingController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 
 
@@ -16,7 +15,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
+    Route::get('/user', function () {
         return response([
             'user' => auth()->user()
         ]);
@@ -36,11 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/return/index', 'returnindex');
     });
 
-
-
     Route::post('/logout', [UserController::class, 'logout']);
-
-
 
     // users can subscribe to a plan
     Route::post('/plan/subscribe', [PlanController::class, 'store']);
