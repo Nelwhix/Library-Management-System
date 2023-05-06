@@ -15,17 +15,15 @@ class LendingController extends Controller
     {
         $fields = $request->validate([
             'title' => 'required|string',
-            'edition' => 'required|string'
         ]);
 
-        $book = Book::where('title', $fields['title'])->where('edition', $fields['edition'])->first();
+        $book = Book::where('title', $fields['title'])->first();
         if ($book === null) {
-            return response([
+            return response()->json([
                 "message" => "Book does not exist on our database"
             ], 404);
         }
 
-        // check if book is available
         if ($book->status->name === "borrowed") {
             return response([
                 "message" => "Book is currently unavailable"
@@ -34,7 +32,6 @@ class LendingController extends Controller
 
         $user = User::find(auth()->user()->id);
 
-        // checking whether user has right access level for book
         $bookAccessLevels = $book->accessLevels;
 
         if ($bookAccessLevels->find($user->access_level_id) === null) {
@@ -43,7 +40,6 @@ class LendingController extends Controller
             ], 403);
         }
 
-        // getting all the plans for a book
         $bookPlans = $book->plans;
         $userPlan = $user->plans->first();
 
@@ -59,7 +55,7 @@ class LendingController extends Controller
             ], 403);
         }
 
-        // Every book must be returned in a week
+
         Lending::create([
             'book_id' => $book->id,
             'user_id' => $user->id,
@@ -67,13 +63,12 @@ class LendingController extends Controller
             'date_due' => now()->addDays(7)
         ]);
 
-        // make the book unavailable
         $bookStatus = Status::where('statusable_id', $book->id)->first();
         $bookStatus->name = "borrowed";
         $bookStatus->description = "borrowed entity(book)";
         $bookStatus->save();
 
-        return response([
+        return response()->json([
             "message" => "Book borrowed successfully, Date due for return is" . " " . now()->addDays(7)
         ], 201);
     }

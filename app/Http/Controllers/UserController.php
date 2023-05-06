@@ -23,7 +23,6 @@ class UserController extends Controller
             'password' => 'required|string|confirmed'
         ]);
 
-        // Assign user an access level and free plan
         $access_level = $this->accessQuery($fields['age']);
         $freePlan = Plan::where('name', 'Free')->first();
 
@@ -44,13 +43,9 @@ class UserController extends Controller
            'plan_id' => $freePlan->id,
         ]);
 
-        $token = $user->createToken('appToken')->plainTextToken;
-
         return response([
-            'user' => $user,
-            'token' => $token
+            'user' => $user
         ], 201);
-
     }
 
     public function update(Request $request) {
@@ -103,7 +98,9 @@ class UserController extends Controller
     public function logout() {
         auth()->user()->tokens()->delete();
 
-        return response("logged out and tokens rovoked", 200);
+        return response()->json([
+            'message' => 'tokens revoked'
+        ]);
     }
 
     private function accessQuery(int $age) {

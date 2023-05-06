@@ -7,11 +7,16 @@ use App\Http\Controllers\PlanController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/ping', function () {
+   return response()->json([
+       'message' => "pong @ " . \Illuminate\Support\Carbon::now() . " UTC"
+   ]);
+});
 
 Route::middleware('guest')->group(function () {
     Route::post('/register', [UserController::class, 'store']);
 
-    Route::post('login', [UserController::class, 'login']);
+    Route::post('/login', [UserController::class, 'login']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -21,21 +26,18 @@ Route::middleware('auth:sanctum')->group(function () {
         ]);
     });
 
-    Route::put('/profile/edit', [UserController::class, 'update']);
+    Route::put('/edit-profile', [UserController::class, 'update']);
+    Route::post('/logout', [UserController::class, 'logout']);
 
     Route::controller(LendingController::class)->group(function () {
         Route::post('/borrow-book', 'store');
 
         Route::put('/return-book', 'update');
 
-        // users can see how many books borrowed (by self)
         Route::get('/borrow/index', 'index');
 
-        // users can see how many books returned (by self)
         Route::get('/return/index', 'returnindex');
     });
-
-    Route::post('/logout', [UserController::class, 'logout']);
 
     // users can subscribe to a plan
     Route::post('/plan/subscribe', [PlanController::class, 'store']);
@@ -43,14 +45,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // users can see their previous subscriptions
     Route::get('/subscriptions/index', [PlanController::class, 'index']);
 
-    // author can add new book
-    Route::post('/book/add', [BookController::class, 'store']);
+    Route::controller(BookController::class)->group(function () {
+        Route::post('/book/add',  'store')->middleware(\App\Http\Middleware\Author::class);
 
-    // author can see his books
-    Route::get('/books/index', [BookController::class, 'index']);
+        Route::get('/book/index', 'index');
 
-    // author can update his book
-    Route::put('/books/update', [BookController::class, 'update']);
+        Route::put('/book/update',  'update');
+    });
+
 
     Route::controller(AdminController::class)->group(function () {
         // admin can add a new plan

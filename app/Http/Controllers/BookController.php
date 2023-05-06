@@ -13,12 +13,6 @@ class BookController extends Controller
 {
     public function store(Request $request)
     {
-        if (!$request->user()->hasRole('author')) {
-            return response([
-                'message' => 'You are not authorized to add a book'
-            ], 403);
-        }
-
         $fields = $request->validate([
             'title' => 'required|string',
             'edition' => 'required|string',
@@ -65,7 +59,6 @@ class BookController extends Controller
         return response([
            "message" => $fields['title'] . " was successfully added to the Library"
         ], 201);
-
     }
 
     public function index(Request $request) {
